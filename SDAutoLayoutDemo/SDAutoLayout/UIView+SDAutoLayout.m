@@ -25,6 +25,12 @@
 
 #import <objc/runtime.h>
 
+CGFloat const MAK_ZOOM_SCREEN_WIDTH = 375;
+
+#define MAK_SCREEN_WIDTH  [UIScreen mainScreen].bounds.size.width
+#define MAK_SCREEN_HEIGHT [UIScreen mainScreen].bounds.size.height
+
+
 @interface SDAutoLayoutModel ()
 
 @property (nonatomic, strong) SDAutoLayoutModelItem *width;
@@ -60,6 +66,8 @@
 
 @property (nonatomic, strong) SDAutoLayoutModelItem *lastModelItem;
 
+@property (nonatomic, assign) BOOL isAutoZoom;
+
 @end
 
 @implementation SDAutoLayoutModel
@@ -91,6 +99,8 @@
 @synthesize widthEqualToHeight = _widthEqualToHeight;
 @synthesize heightEqualToWidth = _heightEqualToWidth;
 @synthesize offset = _offset;
+@synthesize enableAutoZoom = _enableAutoZoom;
+@synthesize disableAutoZoom = _disableAutoZoom;
 
 
 - (MarginToView)leftSpaceToView
@@ -129,6 +139,9 @@
 {
     __weak typeof(self) weakSelf = self;
     return ^(UIView *view, CGFloat value) {
+        if(weakSelf.isAutoZoom){
+            value = value* MAK_SCREEN_WIDTH / MAK_ZOOM_SCREEN_WIDTH;
+        }
         SDAutoLayoutModelItem *item = [SDAutoLayoutModelItem new];
         item.value = @(value);
         item.refView = view;
@@ -142,6 +155,9 @@
     if (!_widthIs) {
         __weak typeof(self) weakSelf = self;
         _widthIs = ^(CGFloat value) {
+            if(weakSelf.isAutoZoom){
+                value = value* MAK_SCREEN_WIDTH / MAK_ZOOM_SCREEN_WIDTH;
+            }
             weakSelf.needsAutoResizeView.width_sd = value;
             weakSelf.needsAutoResizeView.fixedWidth = @(value);
             return weakSelf;
@@ -155,6 +171,9 @@
     if (!_heightIs) {
         __weak typeof(self) weakSelf = self;
         _heightIs = ^(CGFloat value) {
+            if(weakSelf.isAutoZoom){
+                value = value* MAK_SCREEN_WIDTH / MAK_ZOOM_SCREEN_WIDTH;
+            }
             weakSelf.needsAutoResizeView.height_sd = value;
             weakSelf.needsAutoResizeView.fixedHeight = @(value);
             return weakSelf;
@@ -229,6 +248,9 @@
     __weak typeof(self) weakSelf = self;
     
     return ^(CGFloat value) {
+        if(weakSelf.isAutoZoom){
+            value = value* MAK_SCREEN_WIDTH / MAK_ZOOM_SCREEN_WIDTH;
+        }
         [weakSelf setValue:@(value) forKey:key];
         
         return weakSelf;
@@ -306,7 +328,9 @@
     __weak typeof(self) weakSelf = self;
     
     return ^(CGFloat value) {
-        
+        if(weakSelf.isAutoZoom){
+            value = value* MAK_SCREEN_WIDTH / MAK_ZOOM_SCREEN_WIDTH;
+        }
         if ([key isEqualToString:@"x"]) {
             weakSelf.needsAutoResizeView.left_sd = value;
         } else if ([key isEqualToString:@"y"]) {
@@ -427,6 +451,30 @@
         };
     }
     return _offset;
+}
+
+-(AutoZoom)enableAutoZoom{
+    __weak typeof(self) weakSelf = self;
+    
+    if (!_enableAutoZoom) {
+        _enableAutoZoom = ^() {
+            weakSelf.isAutoZoom = YES;
+            return weakSelf;
+        };
+    }
+    return _enableAutoZoom;
+}
+
+-(AutoZoom)disableAutoZoom{
+    __weak typeof(self) weakSelf = self;
+    
+    if (!_disableAutoZoom) {
+        _disableAutoZoom = ^() {
+            weakSelf.isAutoZoom = NO;
+            return weakSelf;
+        };
+    }
+    return _disableAutoZoom;
 }
 
 @end

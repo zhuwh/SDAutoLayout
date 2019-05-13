@@ -63,8 +63,11 @@ typedef SDAutoLayoutModel *(^WidthHeight)(CGFloat value);
 typedef SDAutoLayoutModel *(^WidthHeightEqualToView)(UIView *toView, CGFloat ratioValue);
 typedef SDAutoLayoutModel *(^AutoHeight)(CGFloat ratioValue);
 typedef SDAutoLayoutModel *(^SameWidthHeight)();
+typedef SDAutoLayoutModel *(^AutoZoom)(void);
 typedef SDAutoLayoutModel *(^Offset)(CGFloat value);
 typedef void (^SpaceToSuperView)(UIEdgeInsets insets);
+
+extern CGFloat const MAK_ZOOM_SCREEN_WIDTH;
 
 @interface SDAutoLayoutModel : NSObject
 
@@ -152,6 +155,12 @@ typedef void (^SpaceToSuperView)(UIEdgeInsets insets);
 @property (nonatomic, copy, readonly) SameWidthHeight heightEqualToWidth;
 /** 自适应高度，传入高宽比值，label可以传0实现文字高度自适应 */
 @property (nonatomic, copy, readonly) AutoHeight autoHeightRatio;
+
+
+@property (nonatomic, copy, readonly) AutoZoom enableAutoZoom;
+
+@property (nonatomic, copy, readonly) AutoZoom disableAutoZoom;
+
 
 
 
