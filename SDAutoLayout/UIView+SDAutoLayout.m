@@ -35,6 +35,11 @@ Class cellContVClass()
     }
     return [tempCell.contentView class];
 }
+CGFloat const MAK_ZOOM_SCREEN_WIDTH = 375;
+
+#define MAK_SCREEN_WIDTH  [UIScreen mainScreen].bounds.size.width
+#define MAK_SCREEN_HEIGHT [UIScreen mainScreen].bounds.size.height
+
 
 @interface SDAutoLayoutModel ()
 
@@ -71,6 +76,8 @@ Class cellContVClass()
 
 @property (nonatomic, strong) SDAutoLayoutModelItem *lastModelItem;
 
+@property (nonatomic, assign) BOOL isAutoZoom;
+
 @end
 
 @implementation SDAutoLayoutModel
@@ -103,6 +110,8 @@ Class cellContVClass()
 @synthesize widthEqualToHeight = _widthEqualToHeight;
 @synthesize heightEqualToWidth = _heightEqualToWidth;
 @synthesize offset = _offset;
+@synthesize enableAutoZoom = _enableAutoZoom;
+@synthesize disableAutoZoom = _disableAutoZoom;
 
 
 - (MarginToView)leftSpaceToView
@@ -141,6 +150,9 @@ Class cellContVClass()
 {
     __weak typeof(self) weakSelf = self;
     return ^(id viewOrViewsArray, CGFloat value) {
+        if(weakSelf.isAutoZoom){
+            value = value* MAK_SCREEN_WIDTH / MAK_ZOOM_SCREEN_WIDTH;
+        }
         SDAutoLayoutModelItem *item = [SDAutoLayoutModelItem new];
         item.value = @(value);
         if ([viewOrViewsArray isKindOfClass:[UIView class]]) {
@@ -158,6 +170,9 @@ Class cellContVClass()
     if (!_widthIs) {
         __weak typeof(self) weakSelf = self;
         _widthIs = ^(CGFloat value) {
+            if(weakSelf.isAutoZoom){
+                value = value* MAK_SCREEN_WIDTH / MAK_ZOOM_SCREEN_WIDTH;
+            }
             weakSelf.needsAutoResizeView.fixedWidth = @(value);
             SDAutoLayoutModelItem *widthItem = [SDAutoLayoutModelItem new];
             widthItem.value = @(value);
@@ -173,6 +188,9 @@ Class cellContVClass()
     if (!_heightIs) {
         __weak typeof(self) weakSelf = self;
         _heightIs = ^(CGFloat value) {
+            if(weakSelf.isAutoZoom){
+                value = value* MAK_SCREEN_WIDTH / MAK_ZOOM_SCREEN_WIDTH;
+            }
             weakSelf.needsAutoResizeView.fixedHeight = @(value);
             SDAutoLayoutModelItem *heightItem = [SDAutoLayoutModelItem new];
             heightItem.value = @(value);
@@ -249,6 +267,9 @@ Class cellContVClass()
     __weak typeof(self) weakSelf = self;
     
     return ^(CGFloat value) {
+        if(weakSelf.isAutoZoom){
+            value = value* MAK_SCREEN_WIDTH / MAK_ZOOM_SCREEN_WIDTH;
+        }
         [weakSelf setValue:@(value) forKey:key];
         
         return weakSelf;
@@ -326,7 +347,9 @@ Class cellContVClass()
     __weak typeof(self) weakSelf = self;
     
     return ^(CGFloat value) {
-        
+        if(weakSelf.isAutoZoom){
+            value = value* MAK_SCREEN_WIDTH / MAK_ZOOM_SCREEN_WIDTH;
+        }
         if ([key isEqualToString:@"x"]) {
             weakSelf.needsAutoResizeView.left_sd = value;
         } else if ([key isEqualToString:@"y"]) {
@@ -460,6 +483,30 @@ Class cellContVClass()
         };
     }
     return _offset;
+}
+
+-(AutoZoom)enableAutoZoom{
+    __weak typeof(self) weakSelf = self;
+    
+    if (!_enableAutoZoom) {
+        _enableAutoZoom = ^() {
+            weakSelf.isAutoZoom = YES;
+            return weakSelf;
+        };
+    }
+    return _enableAutoZoom;
+}
+
+-(AutoZoom)disableAutoZoom{
+    __weak typeof(self) weakSelf = self;
+    
+    if (!_disableAutoZoom) {
+        _disableAutoZoom = ^() {
+            weakSelf.isAutoZoom = NO;
+            return weakSelf;
+        };
+    }
+    return _disableAutoZoom;
 }
 
 @end
